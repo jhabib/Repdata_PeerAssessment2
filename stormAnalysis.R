@@ -1,5 +1,5 @@
 ##Install and load packages
-packages <- c("RCurl", "googleVis")
+packages <- c("RCurl", "googleVis", "stringdist")
 if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
   install.packages(setdiff(packages, rownames(installed.packages())))  
 }
@@ -16,7 +16,6 @@ stormData <- read.csv("~/stormdata.csv.bz2", header = TRUE)
 ##Convert EVTYPE to upper case
 stormData$EVTYPE <- toupper(stormData$EVTYPE)
 fatalitiesByEventType <- aggregate(cbind(FATALITIES, INJURIES) ~ EVTYPE, stormData, FUN = "sum")
-
 
 nonZeroHealthImpact <- fatalitiesByEventType[fatalitiesByEventType$FATALITIES != 0 | fatalitiesByEventType$INJURIES != 0, ]
 nonZeroHealthImpact$TOTALHEALTHIMPACT <- with(nonZeroHealthImpact, FATALITIES + INJURIES)
@@ -36,13 +35,13 @@ plot(hi_barplot)
 ##we will use string matching and hierarchical clustering to
 ##group similar strings together
 eventNames <- nonZeroHealthImpact$EVTYPE
-distMatrix <- stringdistmatrix(eventNames, eventNames, method = "osa")
+distMatrix <- stringdistmatrix(eventNames, eventNames, method = "lcs")
 eventNameCluster <- hclust(as.dist(distMatrix))
 event_df <- data.frame(eventNames, cutree(eventNameCluster, k = 100))
 colnames(event_df) <- c("eventNames", "Cluster")
 
 nhi_merged <- merge(nonZeroHealthImpact, event_df, by.x = "EVTYPE", by.y = "eventNames", all.x = TRUE)
-nhi_aggregate <- aggregate(cbind(FATALITIES, INJURIES, TOTALHEALTHIMPACT) ~ Cluster, nhi_merged, FUN = "sum")
+nhi_aggregate <- aggregate(cbind(FATALITIES, INJURIES, TOTALHEALTHIMPACT) ~ Cluster, data = nhi_merged, FUN = "sum")
 nhi <- merge(nhi_aggregate, nhi_merged, by.x = "Cluster", by.y = "Cluster", all.x = TRUE)
 nhi <- nhi[!duplicated(nhi[, 1]),]
 
@@ -56,5 +55,15 @@ hi_cluster_barplot <- gvisColumnChart(data = nhi,
                                              hAxis.showTextEvery = 4))
 plot(hi_cluster_barplot)
 
+##Impact on property
+##PROPDMG contains value of poperty damage
+##PROPDMGEXP contains the multiplier to convert damage value to dollars 
+##(K = 1000, M = 1,000,000)
 
-##
+##First we will remove rows with zero (0) PROPDMG
+propDamageData <- stormData[stormData$PROPDMG != 0, c("EVTYPE", "PROPDMG", "PROPDMGEXP")]
+
+##We will create a new column for proper damage value in dollars
+##Using stormData
+
+##stormData$PROPDMGDOLLAR <- with(stormData, ifelse())
