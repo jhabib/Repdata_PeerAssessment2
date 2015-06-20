@@ -1,5 +1,5 @@
 ##Install and load packages
-packages <- c("RCurl", "googleVis", "stringdist")
+packages <- c("RCurl", "googleVis", "stringdist", "rmarkdown", "knitr")
 if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
   install.packages(setdiff(packages, rownames(installed.packages())))  
 }
@@ -32,9 +32,9 @@ hi_barplot <- gvisColumnChart(data = healthImpactByEventType,
                                           hAxis.showTextEvery = 4))
 plot(hi_barplot)
 
-##We will print EVTYPEs with FATALITIES or INJURIES >=100
+##We will print EVTYPEs with FATALITIES or INJURIES >=1000
 greatestHealthImpact <- healthImpactByEventType[with(healthImpactByEventType, FATALITIES >= 1000 | INJURIES >= 1000),]
-print(greatestHealthImpact[with(greatestHealthImpact, order(-FATALITIES, -INJURIES)), ])
+greatestHealthImpact[with(greatestHealthImpact, order(-FATALITIES, -INJURIES)), ]
 
 ##Since EVTYPE has many entries for one event type e.g. misspellings
 ##we will use string matching and hierarchical clustering to
@@ -52,7 +52,7 @@ nhi <- nhi[!duplicated(nhi[, 1]), c("EVTYPE", "FATALITIES.x", "INJURIES.x", "TOT
 ##Clean up column names before printing
 colnames(nhi) <- c("EVTYPE", "FATALITIES", "INJURIES", "TOTALHEALTHIMPACT")
 
-##We will only consider EVTYPES with FATALITIES OR INJURIES >= 1000
+##We will only consider EVTYPES with FATALITIES or INJURIES >= 1000
 nhi <- nhi[with(nhi, FATALITIES >= 1000 | INJURIES >= 1000),]
 hi_cluster_barplot <- gvisColumnChart(data = nhi, 
                               xvar = "EVTYPE", 
@@ -68,7 +68,7 @@ plot(hi_cluster_barplot)
 print(nhi[with(nhi, order(-FATALITIES, -INJURIES)), ])
 
 ##Impact on property
-##First we will remove rows with zero (0) PROPDMG
+##First we will remove rows with zero (0) PROPDMG from stormData
 propDamageData <- stormData[stormData$PROPDMG != 0, c("EVTYPE", "PROPDMG", "PROPDMGEXP")]
 
 ##PROPDMG contains value of poperty damage

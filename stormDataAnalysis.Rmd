@@ -1,0 +1,193 @@
+---
+title: "Health and Property Impact of Storm (Weather) Events"
+author: "Jawad Habib"
+date: "June 19, 2015"
+output: 
+  html_document: 
+    fig_caption: yes
+    keep_md: yes
+---
+
+#Synopsis
+In this report, we analyze the health and property damage caused by various weather events in the United States. We identify the events, denoted by `EVTYPE` that cause the highest health damage (`FATALITIES` and `INJURIES`) and the highest property damage `PROPDMGVAL`. Total health impact is calculated by simply adding `FATALITIES` and `INJURIES`. Data is analyzed across all US locations for all recoded weather events. 
+
+Our results indicate that Tornados cause the highest health impact at 5633 fatalities and	91346 injuries.
+
+And that Floods cause the highest property damage at USD 144,657,709,800.
+
+#Data Processing
+Data is processed in several steps.
+
+First, we load the dependencies required for our data analysis.
+
+```{r load_dependencies, echo = FALSE}
+packages <- c("RCurl", "googleVis", "stringdist", "rmarkdown", "knitr")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())))  
+}
+lapply(packages, library, character.only=TRUE)
+```
+
+```{r set_googleVis_plot_options, echo=TRUE}
+op <- options(gvis.plot.tag='chart')
+```
+
+Then we download the data from source URL using `download.file` and load it into R using `read.csv`. The `read.csv` function takes care of extracting data from the bzipped source file.
+```{r load_data, echo = TRUE}
+##Download Data
+url <- "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+download.file(url, "~/stormdata.csv.bz2")
+
+##Load the csv data into R
+stormData <- read.csv("~/stormdata.csv.bz2", header = TRUE)
+
+```
+
+Before proceeding with further analysis, we convert the `EVTYPE` column in our data to uppercase to facilitate string comparisons.
+```{r cleanup_EVTYPE, echo = TRUE}
+##Convert EVTYPE to upper case
+stormData$EVTYPE <- toupper(stormData$EVTYPE)
+```
+
+##Calculating Health Impact
+Our data includes two columns that identify impact to population health. These columns are `FATALITIES` and `INJURIES`. We aggregate each variable by `EVTYPE` to get the total count of fatalities and injuries. We also add fatalities and injuries to calculate total health impact denoted by `TOTALHEALTHIMPACT`.
+
+```{r calculate_health_impact, echo = TRUE}
+##Calculate health impact by EVTYPE
+healthImpactByEventType <- aggregate(cbind(FATALITIES, INJURIES) ~ EVTYPE, stormData, FUN = "sum")
+
+healthImpactByEventType <- healthImpactByEventType[healthImpactByEventType$FATALITIES != 0 | healthImpactByEventType$INJURIES != 0, ]
+healthImpactByEventType$TOTALHEALTHIMPACT <- with(healthImpactByEventType, FATALITIES + INJURIES)
+```
+
+
+###Cluster Analysis of EVTYPE and Health Impact
+A review of the `EVTYPE` variable shows that several event types are repeated, mis-spelled, or otherwise added more than once. We use hierarchical clustering on `EVTYPE` to group together similar strings.
+
+We use the `stringdist::stringdistmatrix` function to calculate the relative distance of strings in `EVTYPE` column. We use `lcs` (longest common string) as the distance function. This generates a distance matrix for each value of `EVTYPE`. We the use the `hclust` and `cutree` functions to create `k = 100` clusters of similar `EVTYPE` values. `k = 100` was chosen after manually experimenting with several values of `k` as it yielded the best results. Hierarchical clustering did not yield significantly different results from the original analysis of health impact. Therefore, we chose to skip hierarchical clustering on `EVTYPE` for property damage analysis.
+
+```{r cluster_analysis_health_impact}
+##Since EVTYPE has many entries for one event type e.g. misspellings
+##we will use string matching and hierarchical clustering to
+##group similar strings together
+eventNames <- healthImpactByEventType$EVTYPE
+distMatrix <- stringdistmatrix(eventNames, eventNames, method = "lcs")
+eventNameCluster <- hclust(as.dist(distMatrix))
+event_df <- data.frame(eventNames, cutree(eventNameCluster, k = 100))
+colnames(event_df) <- c("eventNames", "Cluster")
+
+nhi_merged <- merge(healthImpactByEventType, event_df, by.x = "EVTYPE", by.y = "eventNames", all.x = TRUE)
+nhi_aggregate <- aggregate(cbind(FATALITIES, INJURIES, TOTALHEALTHIMPACT) ~ Cluster, data = nhi_merged, FUN = "sum")
+nhi <- merge(nhi_aggregate, nhi_merged, by.x = "Cluster", by.y = "Cluster", all.x = TRUE)
+nhi <- nhi[!duplicated(nhi[, 1]), c("EVTYPE", "FATALITIES.x", "INJURIES.x", "TOTALHEALTHIMPACT.x")]
+##Clean up column names before printing
+colnames(nhi) <- c("EVTYPE", "FATALITIES", "INJURIES", "TOTALHEALTHIMPACT")
+```
+
+
+##Calculating Property Impact
+Property damage is given as a numeric value in the `PROPDMG` variable. Another variable `PROPDMGEXP` is provided to convert the property damage value to a dollar figure. `PROPDMGEXP` consists of the following values:
+```{r, echo = FALSE}
+unique(stormData$PROPDMGEXP)
+```
+
+[Storm Data Documentation](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf) shows that `K = 1000`, `M = 1,000,000` and `B = 1,000,000,000`. No other character values are assigned a numeric value. We assume small case `m` to have the same numeric value as upper case `M` for our analysis.
+
+```{r calculate_property_impact, echo = TRUE}
+##First we will remove rows with zero (0) PROPDMG from stormData
+propDamageData <- stormData[stormData$PROPDMG != 0, c("EVTYPE", "PROPDMG", "PROPDMGEXP")]
+
+##PROPDMG contains value of poperty damage
+##PROPDMGEXP contains the multiplier to convert damage value to dollars 
+##(K = 1000, m or M = 1,000,000, B = 1,000,000,000)
+##We will ignore all other values of PROPDMGEXP per NWSI 10-1605 AUGUST 17, 2007 
+##We will create a new column for proper damage value in dollars
+propDamageMult <- data.frame(EXP = c("K", "M", "B"), PROPDMGMULT = c(1000, 1000000, 1000000000))
+propDamageData <- merge(propDamageData, propDamageMult, by.x = toupper("PROPDMGEXP"), by.y = "EXP", all.x = TRUE)
+propDamageData$PROPDMGVAL <- with(propDamageData, PROPDMG*PROPDMGMULT)
+propDamageData <- propDamageData[complete.cases(propDamageData),]
+
+##We will aggregate the PROPDMGVAL factor by EVTYPE
+##We will omit hierachical clustering for EVTYPE this time around
+##Because it did not yield much of a gain the first time around
+propDamageAgr <- aggregate(PROPDMGVAL ~ EVTYPE, propDamageData, FUN = "sum")
+
+##We will only consider events that cause damage in Billions
+propDamageAgr <- propDamageAgr[propDamageAgr$PROPDMGVAL >= 1000000000, ]
+```
+
+#Results
+This section shows the results of our analysis. First we present the results of health impact by event type and health impact by hierarchically clustered event types. After that, we show the results of propery damage by event type.
+
+##Results: Health Impact by Event Type
+The plot below shows the health impact by event types.
+```{r results='asis', echo=TRUE}
+hi_barplot <- gvisColumnChart(data = healthImpactByEventType, 
+                           xvar = "EVTYPE", 
+                           yvar = c("FATALITIES", "INJURIES", "TOTALHEALTHIMPACT"), 
+                           options = list(title = "Health Impact by Event Type", 
+                                          width = "720px", 
+                                          height = "480px", 
+                                          hAxis.slantedText = TRUE,
+                                          hAxis.slantedTextAngle = 90, 
+                                          hAxis.showTextEvery = 1))
+plot(hi_barplot)
+```
+
+The data table below shows event types where either `FATALITIES >= 1000` or `INJURIES >= 1000`.
+```{r table_health_impact_by_event_type, echo=TRUE}
+##We will use EVTYPEs with FATALITIES or INJURIES >=1000
+greatestHealthImpact <- healthImpactByEventType[with(healthImpactByEventType, FATALITIES >= 1000 | INJURIES >= 1000),]
+kable(greatestHealthImpact[with(greatestHealthImpact, order(-FATALITIES, -INJURIES)), ])
+```
+
+###Results: Health Impact by Hierarchically Clustered Event Types
+The plot below shows the health impact by hierarchically clustered event types. As it can be observed, the results are not significantly different from the ones obtainned without hierarchical clustering.
+```{r results='asis', echo = TRUE}
+##We will only consider EVTYPES with FATALITIES or INJURIES >= 1000
+nhi <- nhi[with(nhi, FATALITIES >= 1000 | INJURIES >= 1000),]
+hi_cluster_barplot <- gvisColumnChart(data = nhi, 
+                              xvar = "EVTYPE", 
+                              yvar = c("FATALITIES", "INJURIES", "TOTALHEALTHIMPACT"), 
+                              options = list(title = "Health Impact by Clustered Event Type", 
+                                             width = "720px", 
+                                             height = "480px", 
+                                             hAxis.slantedText = TRUE,
+                                             hAxis.slantedTextAngle = 90, 
+                                             hAxis.showTextEvery = 1))
+plot(hi_cluster_barplot)
+```
+
+The data table below shows event types where either `FATALITIES >= 1000` or `INJURIES >= 1000`.
+```{r table_health_impact_by_hc_event_type, echo = TRUE}
+kable(nhi[with(nhi, order(-FATALITIES, -INJURIES)), ])
+```
+
+##Results: Property Damage by Event Types
+We ignore hierarchical cluster of `EVTYPE` for property damage. The plot below shows the property damage from event types.
+```{r results='asis', echo = TRUE}
+##Create a column plot of PROPDMGVAL vs EVTYPE 
+pi_barplot <- gvisColumnChart(data = propDamageAgr, 
+                                      xvar = "EVTYPE", 
+                                      yvar = c("PROPDMGVAL"), 
+                                      options = list(title = "Property Impact by Event Type", 
+                                                     width = "720px", 
+                                                     height = "480px", 
+                                                     hAxis.slantedText = TRUE,
+                                                     hAxis.slantedTextAngle = 90, 
+                                                     hAxis.showTextEvery = 4))
+plot(pi_barplot)
+```
+
+
+The table below shows the `EVTYPE` values with the highest property damage. We only consider `EVTYPE` values where `PROPDMGVAL >= 1000000000`.
+
+```{r table_property_damage_by_event_type, echo = TRUE}
+kable(propDamageAgr[with(propDamageAgr, order(-PROPDMGVAL)), ])
+```
+
+This concludes our analysis of Health and Property impacts of weather events captured in Storm Data.
+```{r}
+## Set options back to original options
+options(op)
+```
