@@ -65,6 +65,7 @@ First, we load the dependencies required for our data analysis.
 
 
 ```r
+##Set options to print googleVis charts
 op <- options(gvis.plot.tag='chart')
 ```
 
@@ -178,14 +179,14 @@ plot(hi_barplot)
 ```
 
 <!-- ColumnChart generated in R 3.2.0 by googleVis 0.5.8 package -->
-<!-- Fri Jun 19 22:57:15 2015 -->
+<!-- Fri Jun 19 23:12:55 2015 -->
 
 
 <!-- jsHeader -->
 <script type="text/javascript">
  
 // jsData 
-function gvisDataColumnChartID1d70110d2894 () {
+function gvisDataColumnChartID14d42f30506a () {
 var data = new google.visualization.DataTable();
 var datajson =
 [
@@ -1429,8 +1430,8 @@ return(data);
 }
  
 // jsDrawChart
-function drawChartColumnChartID1d70110d2894() {
-var data = gvisDataColumnChartID1d70110d2894();
+function drawChartColumnChartID14d42f30506a() {
+var data = gvisDataColumnChartID14d42f30506a();
 var options = {};
 options["allowHtml"] = true;
 options["title"] = "Health Impact by Event Type";
@@ -1441,7 +1442,7 @@ options["hAxis.slantedTextAngle"] =     90;
 options["hAxis.showTextEvery"] =      1;
 
     var chart = new google.visualization.ColumnChart(
-    document.getElementById('ColumnChartID1d70110d2894')
+    document.getElementById('ColumnChartID14d42f30506a')
     );
     chart.draw(data,options);
     
@@ -1465,9 +1466,9 @@ if (newPackage)
   pkgs.push(chartid);
   
 // Add the drawChart function to the global list of callbacks
-callbacks.push(drawChartColumnChartID1d70110d2894);
+callbacks.push(drawChartColumnChartID14d42f30506a);
 })();
-function displayChartColumnChartID1d70110d2894() {
+function displayChartColumnChartID14d42f30506a() {
   var pkgs = window.__gvisPackages = window.__gvisPackages || [];
   var callbacks = window.__gvisCallbacks = window.__gvisCallbacks || [];
   window.clearTimeout(window.__gvisLoad);
@@ -1491,11 +1492,11 @@ callbacks.shift()();
 </script>
  
 <!-- jsChart -->  
-<script type="text/javascript" src="https://www.google.com/jsapi?callback=displayChartColumnChartID1d70110d2894"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi?callback=displayChartColumnChartID14d42f30506a"></script>
  
 <!-- divChart -->
   
-<div id="ColumnChartID1d70110d2894" 
+<div id="ColumnChartID14d42f30506a" 
   style="width: 720px; height: 480px;">
 </div>
 
@@ -1543,14 +1544,14 @@ plot(hi_cluster_barplot)
 ```
 
 <!-- ColumnChart generated in R 3.2.0 by googleVis 0.5.8 package -->
-<!-- Fri Jun 19 22:57:15 2015 -->
+<!-- Fri Jun 19 23:12:55 2015 -->
 
 
 <!-- jsHeader -->
 <script type="text/javascript">
  
 // jsData 
-function gvisDataColumnChartID1d702cd070e7 () {
+function gvisDataColumnChartID14d414c77b12 () {
 var data = new google.visualization.DataTable();
 var datajson =
 [
@@ -1642,8 +1643,8 @@ return(data);
 }
  
 // jsDrawChart
-function drawChartColumnChartID1d702cd070e7() {
-var data = gvisDataColumnChartID1d702cd070e7();
+function drawChartColumnChartID14d414c77b12() {
+var data = gvisDataColumnChartID14d414c77b12();
 var options = {};
 options["allowHtml"] = true;
 options["title"] = "Health Impact by Clustered Event Type";
@@ -1654,7 +1655,7 @@ options["hAxis.slantedTextAngle"] =     90;
 options["hAxis.showTextEvery"] =      1;
 
     var chart = new google.visualization.ColumnChart(
-    document.getElementById('ColumnChartID1d702cd070e7')
+    document.getElementById('ColumnChartID14d414c77b12')
     );
     chart.draw(data,options);
     
@@ -1678,9 +1679,9 @@ if (newPackage)
   pkgs.push(chartid);
   
 // Add the drawChart function to the global list of callbacks
-callbacks.push(drawChartColumnChartID1d702cd070e7);
+callbacks.push(drawChartColumnChartID14d414c77b12);
 })();
-function displayChartColumnChartID1d702cd070e7() {
+function displayChartColumnChartID14d414c77b12() {
   var pkgs = window.__gvisPackages = window.__gvisPackages || [];
   var callbacks = window.__gvisCallbacks = window.__gvisCallbacks || [];
   window.clearTimeout(window.__gvisLoad);
@@ -1704,11 +1705,11 @@ callbacks.shift()();
 </script>
  
 <!-- jsChart -->  
-<script type="text/javascript" src="https://www.google.com/jsapi?callback=displayChartColumnChartID1d702cd070e7"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi?callback=displayChartColumnChartID14d414c77b12"></script>
  
 <!-- divChart -->
   
-<div id="ColumnChartID1d702cd070e7" 
+<div id="ColumnChartID14d414c77b12" 
   style="width: 720px; height: 480px;">
 </div>
 
@@ -1752,14 +1753,14 @@ plot(pi_barplot)
 ```
 
 <!-- ColumnChart generated in R 3.2.0 by googleVis 0.5.8 package -->
-<!-- Fri Jun 19 22:57:15 2015 -->
+<!-- Fri Jun 19 23:12:55 2015 -->
 
 
 <!-- jsHeader -->
 <script type="text/javascript">
  
 // jsData 
-function gvisDataColumnChartID1d705a0bde7 () {
+function gvisDataColumnChartID14d45c923e57 () {
 var data = new google.visualization.DataTable();
 var datajson =
 [
@@ -1863,8 +1864,8 @@ return(data);
 }
  
 // jsDrawChart
-function drawChartColumnChartID1d705a0bde7() {
-var data = gvisDataColumnChartID1d705a0bde7();
+function drawChartColumnChartID14d45c923e57() {
+var data = gvisDataColumnChartID14d45c923e57();
 var options = {};
 options["allowHtml"] = true;
 options["title"] = "Property Impact by Event Type";
@@ -1875,7 +1876,7 @@ options["hAxis.slantedTextAngle"] =     90;
 options["hAxis.showTextEvery"] =      4;
 
     var chart = new google.visualization.ColumnChart(
-    document.getElementById('ColumnChartID1d705a0bde7')
+    document.getElementById('ColumnChartID14d45c923e57')
     );
     chart.draw(data,options);
     
@@ -1899,9 +1900,9 @@ if (newPackage)
   pkgs.push(chartid);
   
 // Add the drawChart function to the global list of callbacks
-callbacks.push(drawChartColumnChartID1d705a0bde7);
+callbacks.push(drawChartColumnChartID14d45c923e57);
 })();
-function displayChartColumnChartID1d705a0bde7() {
+function displayChartColumnChartID14d45c923e57() {
   var pkgs = window.__gvisPackages = window.__gvisPackages || [];
   var callbacks = window.__gvisCallbacks = window.__gvisCallbacks || [];
   window.clearTimeout(window.__gvisLoad);
@@ -1925,11 +1926,11 @@ callbacks.shift()();
 </script>
  
 <!-- jsChart -->  
-<script type="text/javascript" src="https://www.google.com/jsapi?callback=displayChartColumnChartID1d705a0bde7"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi?callback=displayChartColumnChartID14d45c923e57"></script>
  
 <!-- divChart -->
   
-<div id="ColumnChartID1d705a0bde7" 
+<div id="ColumnChartID14d45c923e57" 
   style="width: 720px; height: 480px;">
 </div>
 
@@ -1970,6 +1971,6 @@ kable(propDamageAgr[with(propDamageAgr, order(-PROPDMGVAL)), ])
 This concludes our analysis of Health and Property impacts of weather events captured in Storm Data.
 
 ```r
-## Set options back to original options
+##Set options back to original options
 options(op)
 ```

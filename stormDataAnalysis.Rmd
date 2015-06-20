@@ -29,6 +29,7 @@ lapply(packages, library, character.only=TRUE)
 ```
 
 ```{r set_googleVis_plot_options, echo=TRUE}
+##Set options to print googleVis charts
 op <- options(gvis.plot.tag='chart')
 ```
 
@@ -188,6 +189,6 @@ kable(propDamageAgr[with(propDamageAgr, order(-PROPDMGVAL)), ])
 
 This concludes our analysis of Health and Property impacts of weather events captured in Storm Data.
 ```{r}
-## Set options back to original options
+##Set options back to original options
 options(op)
 ```
